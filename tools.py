@@ -4,7 +4,7 @@ import hashlib
 import smtplib
 import ssl
 import string
-
+from email.message import EmailMessage
 
 def getValidMail():
     # https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
@@ -52,16 +52,25 @@ def send2FA(receiver_email, code):
     from my_secrets import email_password
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
-    sender_email = "UniversalLog2020@gmail.com"  # Enter your address
-    message = """\
-    Subject: Universal Log: {}
+    sender_email = "UniversalLog2020@gmail.com"  # Enter your email address
 
-    Your code is: {} """.format(code, code)
+    #Set subject:
+    #https://stackoverflow.com/questions/7232088/python-subject-not-shown-when-sending-email-using-smtplib-module
+
+    message = EmailMessage()
+        #Subject: {} \n\n
+    message.set_content(("""\
+
+    Your code is: {} """).format(code))
+
+    message['Subject'] = 'Universal Log 2FA'
+    
 
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
         server.login(sender_email, email_password)
-        server.sendmail(sender_email, receiver_email, message)
+        server.sendmail(sender_email, receiver_email, message.as_string())
+    #server.quit() - Not sure if it should be here or not!!!!!
 
 
 def genCode():
