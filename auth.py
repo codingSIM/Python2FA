@@ -2,10 +2,11 @@ import sqlite3
 import smtplib, ssl
 import re
 import string
+import random
 
 
 saltChars = string.ascii_letters + string.digits
-codeGen = ascii_uppercase
+codeGen = string.ascii_uppercase
 
 connObj = sqlite3.connect('login.db')
 
@@ -35,11 +36,13 @@ else:
 
 #https://www.geeksforgeeks.org/check-if-email-address-valid-or-not-in-python/
 regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-def checkMail(mail):
-    if(re.search(regex,email)):  
-        return "Valid"
-    else:  
-        return "Invalid"  
+def getValidMail():
+    while True:
+        mail = input("Enter valid mail: ")
+        if(re.search(regex,mail)):  
+            return mail
+        else:  
+            pass  
 
 
 
@@ -59,12 +62,35 @@ def generateCodes(length, chars):
 
 
 
-
+#Loop to add entries to the db
 while True:
-    username = input("Enter username:")
-    email = checkMail()
-    if email == "Valid":
-        
+    print("Add an entry / sign in: ")
+    username = input("Enter username: ")
+    mail = getValidMail()
+    password = input("Enter password: ")
+    salt = generateCodes(24, saltChars)
+    #make function to encrypt password
+    #encryptPassword()
+
+    #adding entry to db
+    acc = [username, mail, password, salt]
+    c.execute("INSERT INTO logins VALUES (?,?,?,?)", acc)
+    connObj.commit()
+
+    
+    again = input("Add another entry? [Y]/n :")
+    if again == "" or again.lower() == "y":
+        print("------------------------\n")
+        pass
+    else:
+        print("\n")
+        break
+#-------------------------------------------------
+
+
+#Loop for login + SENDING MAIL 2factor
+#while True:
+    
 
 
 
@@ -72,6 +98,12 @@ while True:
 
 
 
+
+
+
+
+# Just be sure any changes have been committed or they will be lost.
+connObj.close()
 
 
 
